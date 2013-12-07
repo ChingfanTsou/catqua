@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.catqua.app.AppConfig;
 import net.catqua.app.AppContext;
 import net.catqua.app.AppException;
 import net.catqua.app.AppManager;
@@ -16,8 +15,6 @@ import net.catqua.app.adapter.GridViewFaceAdapter;
 import net.catqua.app.api.ApiClient;
 import net.catqua.app.bean.Comment;
 import net.catqua.app.bean.CommentList;
-import net.catqua.app.bean.Notice;
-import net.catqua.app.bean.Result;
 import net.catqua.app.bean.URLs;
 import net.catqua.app.ui.BaseActivity;
 import net.catqua.app.ui.CommentPub;
@@ -36,7 +33,6 @@ import net.catqua.app.widget.ScreenShotView;
 import net.catqua.app.widget.ScreenShotView.OnScreenShotListener;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -194,29 +190,6 @@ public class UIHelper {
 			context.startActivityForResult(intent, REQUEST_CODE_FOR_RESULT);
 	}
 
-	/**
-	 * 收藏操作选择框
-	 * 
-	 * @param context
-	 * @param thread
-	 */
-	public static void showFavoriteOptionDialog(final Activity context,
-			final Thread thread) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		builder.setIcon(R.drawable.ic_dialog_menu);
-		builder.setTitle(context.getString(R.string.select));
-		builder.setItems(R.array.favorite_options,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface arg0, int arg1) {
-						switch (arg1) {
-						case 0:// 删除
-							thread.start();
-							break;
-						}
-					}
-				});
-		builder.create().show();
-	}
 
 	/**
 	 * 评论操作选择框
@@ -272,69 +245,6 @@ public class UIHelper {
 		builder.create().show();
 	}
 
-	/**
-	 * 博客列表操作
-	 * 
-	 * @param context
-	 * @param thread
-	 */
-	public static void showBlogOptionDialog(final Context context,
-			final Thread thread) {
-		new AlertDialog.Builder(context)
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setTitle(context.getString(R.string.delete_blog))
-				.setPositiveButton(R.string.sure,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								if (thread != null)
-									thread.start();
-								else
-									ToastMessage(context,
-											R.string.msg_noaccess_delete);
-								dialog.dismiss();
-							}
-						})
-				.setNegativeButton(R.string.cancle,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.dismiss();
-							}
-						}).create().show();
-	}
-
-	/**
-	 * 动弹操作选择框
-	 * 
-	 * @param context
-	 * @param thread
-	 */
-	public static void showTweetOptionDialog(final Context context,
-			final Thread thread) {
-		new AlertDialog.Builder(context)
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setTitle(context.getString(R.string.delete_tweet))
-				.setPositiveButton(R.string.sure,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								if (thread != null)
-									thread.start();
-								else
-									ToastMessage(context,
-											R.string.msg_noaccess_delete);
-								dialog.dismiss();
-							}
-						})
-				.setNegativeButton(R.string.cancle,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.dismiss();
-							}
-						}).create().show();
-	}
 
 	/**
 	 * 显示图片对话框
@@ -618,161 +528,7 @@ public class UIHelper {
 				});
 		builder.show();
 	}
-
-	/**
-	 * 组合动态的动作文本
-	 * 
-	 * @param objecttype
-	 * @param objectcatalog
-	 * @param objecttitle
-	 * @return
-	 */
-	public static SpannableString parseActiveAction(String author,
-			int objecttype, int objectcatalog, String objecttitle) {
-		String title = "";
-		int start = 0;
-		int end = 0;
-		if (objecttype == 32 && objectcatalog == 0) {
-			title = "加入了开源中国";
-		} else if (objecttype == 1 && objectcatalog == 0) {
-			title = "添加了开源项目 " + objecttitle;
-		} else if (objecttype == 2 && objectcatalog == 1) {
-			title = "在讨论区提问：" + objecttitle;
-		} else if (objecttype == 2 && objectcatalog == 2) {
-			title = "发表了新话题：" + objecttitle;
-		} else if (objecttype == 3 && objectcatalog == 0) {
-			title = "发表了博客 " + objecttitle;
-		} else if (objecttype == 4 && objectcatalog == 0) {
-			title = "发表一篇新闻 " + objecttitle;
-		} else if (objecttype == 5 && objectcatalog == 0) {
-			title = "分享了一段代码 " + objecttitle;
-		} else if (objecttype == 6 && objectcatalog == 0) {
-			title = "发布了一个职位：" + objecttitle;
-		} else if (objecttype == 16 && objectcatalog == 0) {
-			title = "在新闻 " + objecttitle + " 发表评论";
-		} else if (objecttype == 17 && objectcatalog == 1) {
-			title = "回答了问题：" + objecttitle;
-		} else if (objecttype == 17 && objectcatalog == 2) {
-			title = "回复了话题：" + objecttitle;
-		} else if (objecttype == 17 && objectcatalog == 3) {
-			title = "在 " + objecttitle + " 对回帖发表评论";
-		} else if (objecttype == 18 && objectcatalog == 0) {
-			title = "在博客 " + objecttitle + " 发表评论";
-		} else if (objecttype == 19 && objectcatalog == 0) {
-			title = "在代码 " + objecttitle + " 发表评论";
-		} else if (objecttype == 20 && objectcatalog == 0) {
-			title = "在职位 " + objecttitle + " 发表评论";
-		} else if (objecttype == 101 && objectcatalog == 0) {
-			title = "回复了动态：" + objecttitle;
-		} else if (objecttype == 100) {
-			title = "更新了动态";
-		}
-		title = author + " " + title;
-		SpannableString sp = new SpannableString(title);
-		// 设置用户名字体大小、加粗、高亮
-		sp.setSpan(new AbsoluteSizeSpan(14, true), 0, author.length(),
-				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		sp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0,
-				author.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		sp.setSpan(new ForegroundColorSpan(Color.parseColor("#0e5986")), 0,
-				author.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		// 设置标题字体大小、高亮
-		if (!StringUtils.isEmpty(objecttitle)) {
-			start = title.indexOf(objecttitle);
-			if (objecttitle.length() > 0 && start > 0) {
-				end = start + objecttitle.length();
-				sp.setSpan(new AbsoluteSizeSpan(14, true), start, end,
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				sp.setSpan(
-						new ForegroundColorSpan(Color.parseColor("#0e5986")),
-						start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-		}
-		return sp;
-	}
-
-	/**
-	 * 组合动态的回复文本
-	 * 
-	 * @param name
-	 * @param body
-	 * @return
-	 */
-	public static SpannableString parseActiveReply(String name, String body) {
-		SpannableString sp = new SpannableString(name + "：" + body);
-		// 设置用户名字体加粗、高亮
-		sp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0,
-				name.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		sp.setSpan(new ForegroundColorSpan(Color.parseColor("#0e5986")), 0,
-				name.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		return sp;
-	}
-
-	/**
-	 * 组合消息文本
-	 * 
-	 * @param name
-	 * @param body
-	 * @return
-	 */
-	public static void parseMessageSpan(LinkView view, String name,
-			String body, String action) {
-		Spanned span = null;
-		SpannableStringBuilder style = null;
-		int start = 0;
-		int end = 0;
-		String content = null;
-		if (StringUtils.isEmpty(action)) {
-			content = name + "：" + body;
-			span = Html.fromHtml(content);
-			view.setText(span);
-			end = name.length();
-		} else {
-			content = action + name + "：" + body;
-			span = Html.fromHtml(content);
-			view.setText(span);
-			start = action.length();
-			end = start + name.length();
-		}
-		view.setMovementMethod(LinkMovementMethod.getInstance());
-
-		Spannable sp = (Spannable) view.getText();
-		URLSpan[] urls = span.getSpans(0, sp.length(), URLSpan.class);
-
-		style = new SpannableStringBuilder(view.getText());
-		// style.clearSpans();// 这里会清除之前所有的样式
-		for (URLSpan url : urls) {
-			 style.removeSpan(url);// 只需要移除之前的URL样式，再重新设置
-			 MyURLSpan myURLSpan =  view.new MyURLSpan(url.getURL());
-			 style.setSpan(myURLSpan, span.getSpanStart(url),
-		    		span.getSpanEnd(url), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
-
-		// 设置用户名字体加粗、高亮
-		style.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start,
-				end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		style.setSpan(new ForegroundColorSpan(Color.parseColor("#0e5986")),
-				start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		view.setText(style);
-	}
-
-	/**
-	 * 组合回复引用文本
-	 * 
-	 * @param name
-	 * @param body
-	 * @return
-	 */
-	public static SpannableString parseQuoteSpan(String name, String body) {
-		SpannableString sp = new SpannableString("回复：" + name + "\n" + body);
-		// 设置用户名字体加粗、高亮
-		sp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 3,
-				3 + name.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		sp.setSpan(new ForegroundColorSpan(Color.parseColor("#0e5986")), 3,
-				3 + name.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		return sp;
-	}
-
+	
 	/**
 	 * 弹出Toast消息
 	 * 
@@ -949,9 +705,9 @@ public class UIHelper {
 						// i.setType("text/plain"); //模拟器
 						i.setType("message/rfc822"); // 真机
 						i.putExtra(Intent.EXTRA_EMAIL,
-								new String[] { "jxsmallmouse@163.com" });
+								new String[] { "" });
 						i.putExtra(Intent.EXTRA_SUBJECT,
-								"开源中国Android客户端 - 错误报告");
+								"");
 						i.putExtra(Intent.EXTRA_TEXT, crashReport);
 						cont.startActivity(Intent.createChooser(i, "发送错误报告"));
 						// 退出

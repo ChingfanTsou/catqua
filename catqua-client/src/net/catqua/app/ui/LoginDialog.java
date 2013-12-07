@@ -31,6 +31,7 @@ public class LoginDialog extends BaseActivity{
 	private ViewSwitcher mViewSwitcher;
 	private ImageButton btn_close;
 	private Button btn_login;
+	private Button btn_reg;
 	private AutoCompleteTextView mAccount;
 	private EditText mPwd;
 	private AnimationDrawable loadingAnimation;
@@ -62,6 +63,8 @@ public class LoginDialog extends BaseActivity{
         btn_close.setOnClickListener(UIHelper.finish(this));        
         
         btn_login = (Button)findViewById(R.id.login_btn_login);
+        btn_reg = (Button)findViewById(R.id.login_btn_reg);
+        
         btn_login.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				//隐藏软键盘
@@ -88,7 +91,32 @@ public class LoginDialog extends BaseActivity{
 		        login(account, pwd, isRememberMe);
 			}
 		});
-
+        btn_reg.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				//隐藏软键盘
+				imm.hideSoftInputFromWindow(v.getWindowToken(), 0);  
+				
+				String account = mAccount.getText().toString();
+				String pwd = mPwd.getText().toString();
+				boolean isRememberMe = chb_rememberMe.isChecked();
+				//判断输入
+				if(StringUtils.isEmpty(account)){
+					UIHelper.ToastMessage(v.getContext(), getString(R.string.msg_login_email_null));
+					return;
+				}
+				if(StringUtils.isEmpty(pwd)){
+					UIHelper.ToastMessage(v.getContext(), getString(R.string.msg_login_pwd_null));
+					return;
+				}
+				
+		        btn_close.setVisibility(View.GONE);
+		        loadingAnimation = (AnimationDrawable)loginLoading.getBackground();
+		        loadingAnimation.start();
+		        mViewSwitcher.showNext();
+		        
+		        reg(account, pwd, isRememberMe);
+			}
+		});
         //是否显示登录信息
         AppContext ac = (AppContext)getApplication();
         User user = ac.getLoginInfo();
@@ -139,6 +167,63 @@ public class LoginDialog extends BaseActivity{
 				try {
 					AppContext ac = (AppContext)getApplication(); 
 	                User user = ac.loginVerify(account, pwd);
+	                user.setAccount(account);
+	                user.setPwd(pwd);
+	                user.setRememberMe(isRememberMe);
+	                Result res = user.getValidate();
+	                if(res.OK()){
+	                	ac.saveLoginInfo(user);//保存登录信息
+	                	msg.what = 1;//成功
+	                	msg.obj = user;
+	                }else{
+	                	ac.cleanLoginInfo();//清除登录信息
+	                	msg.what = 0;//失败
+	                	msg.obj = res.getErrorMessage();
+	                }
+	            } catch (AppException e) {
+	            	e.printStackTrace();
+			    	msg.what = -1;
+			    	msg.obj = e;
+	            }
+				handler.sendMessage(msg);
+			}
+		}.start();
+    }
+    private void reg(final String account, final String pwd, final boolean isRememberMe) {
+		final Handler handler = new Handler() {
+			public void handleMessage(Message msg) {
+				if(msg.what == 1){
+					User user = (User)msg.obj;
+					if(user != null){
+						//清空原先cookie
+						ApiClient.cleanCookie();
+						//提示登陆成功
+						UIHelper.ToastMessage(LoginDialog.this, R.string.msg_login_success);
+						if(curLoginType == LOGIN_MAIN){
+							//跳转--加载用户动态
+							Intent intent = new Intent(LoginDialog.this, Main.class);
+							intent.putExtra("LOGIN", true);
+							startActivity(intent);
+						}
+						finish();
+					}
+				}else if(msg.what == 0){
+					mViewSwitcher.showPrevious();
+					btn_close.setVisibility(View.VISIBLE);
+					UIHelper.ToastMessage(LoginDialog.this, getString(R.string.msg_reg_fail)+msg.obj);
+				}else if(msg.what == -1){
+					mViewSwitcher.showPrevious();
+					btn_close.setVisibility(View.VISIBLE);
+					((AppException)msg.obj).makeToast(LoginDialog.this);
+				}
+			}
+		};
+		new Thread(){
+			public void run() {
+				Message msg =new Message();
+				try {
+					AppContext ac = (AppContext)getApplication(); 
+	                User user = ac.TryReg(account, pwd);
 	                user.setAccount(account);
 	                user.setPwd(pwd);
 	                user.setRememberMe(isRememberMe);

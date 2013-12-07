@@ -239,6 +239,16 @@ public class AppContext extends Application {
 	}
 	
 	/**
+	 * 用户尝试注册
+	 * @param account
+	 * @param pwd
+	 * @return
+	 * @throws AppException
+	 */
+	public User TryReg(String account, String pwd) throws AppException {
+		return ApiClient.reg(this, account, pwd);
+	}
+	/**
 	 * 读取帖子详情
 	 * @param post_id
 	 * @return

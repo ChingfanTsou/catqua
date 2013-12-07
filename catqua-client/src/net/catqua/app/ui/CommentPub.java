@@ -77,7 +77,6 @@ public class CommentPub extends BaseActivity{
     	mPublish.setOnClickListener(publishClickListener);    	
     	
     	mQuote = (LinkView)findViewById(R.id.comment_pub_quote);
-    	mQuote.setText(UIHelper.parseQuoteSpan(getIntent().getStringExtra("author"),getIntent().getStringExtra("content")));
     	mQuote.parseLinkText();
     }
 	

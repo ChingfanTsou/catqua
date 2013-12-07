@@ -403,7 +403,29 @@ public class ApiClient {
 			throw AppException.network(e);
 		}
 	}
-	
+	/**
+	 * 注册并登录， 自动处理cookie
+	 * @param url
+	 * @param username
+	 * @param pwd
+	 * @return
+	 * @throws AppException
+	 */
+	public static User reg(AppContext appContext, String username, String pwd) throws AppException {
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("username", username);
+		params.put("pwd", pwd);
+				
+		String regurl = URLs.REGISTER;
+		
+		try{
+			return User.parse(_post(appContext, regurl, params, null));		
+		}catch(Exception e){
+			if(e instanceof AppException)
+				throw (AppException)e;
+			throw AppException.network(e);
+		}
+	}
 	/**
 	 * 更新用户头像
 	 * @param appContext

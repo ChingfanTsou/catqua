@@ -23,6 +23,8 @@ public class URLs implements Serializable {
 	private final static String Cat_URL_API_HOST = HTTP + "ijingo.info/catqua" + URL_SPLITTER;
 	public final static String LOGIN_VALIDATE_HTTP = Cat_URL_API_HOST + "login.php";
 	public final static String LOGIN_VALIDATE_HTTPS = Cat_URL_API_HOST + "login.php";
+	public final static String REGISTER = Cat_URL_API_HOST + "register.php";
+
 	public final static String NEWS_LIST = URL_API_HOST+"action/api/news_list";
 	public final static String NEWS_DETAIL = URL_API_HOST+"action/api/news_detail";
 	
