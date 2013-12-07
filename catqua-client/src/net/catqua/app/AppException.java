@@ -12,7 +12,7 @@ import java.util.Date;
 
 import net.catqua.app.common.UIHelper;
 
-import org.apache.commons.httpclient.HttpException;
+import org.apache.http.HttpException;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
