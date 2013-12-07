@@ -34,6 +34,8 @@ VALUES (%s, \"%s\", %s, \"%s\")",$uid,$_COOKIE["username"],$pid,$content);
 $rs = mysql_query($query_rs, $dblink);
 $query_rs = sprintf("UPDATE `post` SET answerCount = answerCount+1 WHERE id=%s",$pid);
 $rs = mysql_query($query_rs, $dblink);
+$query_rs = sprintf("UPDATE `post` SET pubDate = CURRENT_TIMESTAMP WHERE id=%s",$pid);
+$rs = mysql_query($query_rs, $dblink);
 $query_rs = sprintf("SELECT * FROM `comment` WHERE uid=%s ORDER BY pubDate DESC LIMIT 0, 1",$uid);
 $rs = mysql_query($query_rs, $dblink);
 $row = mysql_fetch_assoc($rs);
